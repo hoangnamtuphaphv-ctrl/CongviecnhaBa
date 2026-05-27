@@ -2,37 +2,48 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giao diện Ba - Baorcantien</title>
+    <title>Bảng điều khiển - Baorcantien</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <style>
+        .menu { background: #005088; padding: 15px; color: white; display: flex; gap: 20px; }
+        .task-card { border: 2px solid #005088; padding: 15px; margin: 10px; border-radius: 10px; }
+    </style>
 </head>
 <body>
-    <h2>Bảng điều khiển: Baorcantien</h2>
+    <div class="menu">
+        <span><b>BAORCANTIEN</b></span>
+        <span>Tạo việc</span>
+        <span>Duyệt việc</span>
+    </div>
+
+    <h2>Tạo nhiệm vụ mới</h2>
     <input type="text" id="name" placeholder="Tên việc...">
-    <input type="number" id="price" placeholder="Số tiền...">
+    <input type="number" id="price" placeholder="Giá tiền...">
     <button onclick="addTask()">Tạo Nhiệm Vụ</button>
 
-    <h3>Danh sách chờ Ba duyệt:</h3>
+    <h3>Danh sách chờ duyệt:</h3>
     <div id="adminList"></div>
 
     <script>
         const firebaseConfig = { databaseURL: "https://viecnha-94d10-default-rtdb.asia-southeast1.firebasedatabase.app" };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('Baorcantien'); 
+        const db = firebase.database().ref('Baorcantien');
 
         function addTask() {
-            let name = document.getElementById('name').value;
-            let price = document.getElementById('price').value;
-            if(name && price) db.push({ name, price, status: 'new' });
+            let n = document.getElementById('name').value;
+            let p = document.getElementById('price').value;
+            if(n && p) db.push({ name: n, price: p, status: 'new', videoUrl: '' });
         }
-        
+
         db.on('value', (s) => {
             let html = '';
             s.forEach(c => {
                 let t = c.val();
                 if(t.status === 'pending') {
-                    html += `<div style="border:1px solid #ccc; padding:10px; margin:5px;">
-                        <strong>${t.name}</strong> - ${t.price} VNĐ 
+                    html += `<div class="task-card">
+                        <strong>${t.name}</strong> - ${t.price} VNĐ<br>
+                        <a href="${t.videoUrl || '#'}" target="_blank">🎥 Xem video bằng chứng</a><br>
                         <button onclick="db.child('${c.key}').update({status: 'done'})">Duyệt xong ✅</button>
                     </div>`;
                 }
@@ -41,4 +52,4 @@
         });
     </script>
 </body>
-      </html>
+</html>
