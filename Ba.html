@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Giao diện Ba - Baorcantien</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <h2>Bảng điều khiển: Baorcantien</h2>
+    <input type="text" id="name" placeholder="Tên việc...">
+    <input type="number" id="price" placeholder="Số tiền...">
+    <button onclick="addTask()">Tạo Nhiệm Vụ</button>
+
+    <h3>Danh sách chờ Ba duyệt:</h3>
+    <div id="adminList"></div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://viecnha-94d10-default-rtdb.asia-southeast1.firebasedatabase.app" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref('Baorcantien'); 
+
+        function addTask() {
+            let name = document.getElementById('name').value;
+            let price = document.getElementById('price').value;
+            if(name && price) db.push({ name, price, status: 'new' });
+        }
+        
+        db.on('value', (s) => {
+            let html = '';
+            s.forEach(c => {
+                let t = c.val();
+                if(t.status === 'pending') {
+                    html += `<div style="border:1px solid #ccc; padding:10px; margin:5px;">
+                        <strong>${t.name}</strong> - ${t.price} VNĐ 
+                        <button onclick="db.child('${c.key}').update({status: 'done'})">Duyệt xong ✅</button>
+                    </div>`;
+                }
+            });
+            document.getElementById('adminList').innerHTML = html || "Chưa có việc nào cần duyệt.";
+        });
+    </script>
+</body>
+      </html>
